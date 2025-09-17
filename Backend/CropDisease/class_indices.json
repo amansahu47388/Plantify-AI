@@ -1,0 +1,13 @@
+{
+  "0": "Corn_healthy",
+  "1": "Corn_mildew",
+  "2": "Corn_rust",
+  "3": "Soyabean_healthy",
+  "4": "Soyabean_leaf_spots",
+  "5": "Soyabean_rust",
+  "6": "Soyabean_yellow_virus",
+  "7": "Tomato_bacterial",
+  "8": "Tomato_healthy",
+  "9": "Tomato_leaf_spot",
+  "10": "Tomato_powdery_mildew"
+}
