@@ -461,19 +461,13 @@ class PasswordResetRequestView(APIView):
             # Generate a password reset token
             reset_token = PasswordResetToken.generate_token(user)
             
-            # Create the reset link pointing to the frontend application
+            # Create the reset link pointing to the backend web page
+            # This will handle both web and mobile app users
             protocol = 'https' if request.is_secure() else 'http'
             domain = request.get_host()
             
-            # Frontend is likely running on a different port/domain than the backend in development
-            # For local development (adjust these URLs for your environment)
-            if domain == 'localhost:8000' or domain == '127.0.0.1:8000':
-                frontend_base_url = 'http://localhost:5173'  # Typical Vite/React development server
-            else:
-                # In production, frontend and backend might be on the same domain
-                frontend_base_url = f"{protocol}://{domain}"
-                
-            reset_link = f"{frontend_base_url}/reset-password?token={reset_token.token}"
+            # Use the backend URL for the reset link
+            reset_link = f"{protocol}://{domain}/account/reset-password/?token={reset_token.token}"
             
             # Send the reset link in an email
             subject = "Reset your PlantifyAI password"
@@ -570,5 +564,31 @@ class PasswordResetConfirmView(APIView):
         
         return Response({
             'success': 'Password has been reset successfully.',
+            'email': user.email
+        })
+
+
+
+
+class ChangePasswordView(APIView):
+    """
+    Change user password using current password
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        from .serializers import ChangePasswordSerializer
+        
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Change the password
+        user = request.user
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+        
+        return Response({
+            'success': 'Password changed successfully.',
             'email': user.email
         })

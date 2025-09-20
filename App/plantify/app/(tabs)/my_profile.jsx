@@ -1,40 +1,169 @@
-import React, { useMemo, useState } from 'react'
-import { SafeAreaView, ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ImageBackground } from 'react-native'
+import React, { useMemo, useState, useEffect } from 'react'
+import { SafeAreaView, ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ImageBackground, Alert } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
+import { useAuth } from '../../src/contexts/AuthContext'
+import * as ImagePicker from 'expo-image-picker'
 
 const MyProfile = () => {
   const router = useRouter()
+  const { user, updateProfile, refreshProfile, isLoading } = useAuth()
 
-  // In a real app, hydrate from your user store/service
-  const initialUser = useMemo(() => ({
-    firstName: 'Aisha',
-    lastName: 'Koritum',
-    email: 'aishakoritum008@gmail.com',
-    phone: '+1 212 555 41',
-    address: '123 Green Ave, Springfield, USA',
-    dob: '1996-08-12',
-    bio: 'Nature lover and urban gardener.',
-    avatar: require('../../assets/images/logo_app.png'),
-  }), [])
-
-  const [firstName, setFirstName] = useState(initialUser.firstName)
-  const [lastName, setLastName] = useState(initialUser.lastName)
-  const [phone, setPhone] = useState(initialUser.phone)
-  const [email, setEmail] = useState(initialUser.email)
-  const [address, setAddress] = useState(initialUser.address)
-  const [dob, setDob] = useState(initialUser.dob)
-  const [bio, setBio] = useState(initialUser.bio)
+  // Initialize form data from user context
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [address, setAddress] = useState('')
+  const [dob, setDob] = useState('')
+  const [bio, setBio] = useState('')
   const [saving, setSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+
+  // Update form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.first_name || '')
+      setLastName(user.last_name || '')
+      setPhone(user.phone || '')
+      setEmail(user.email || '')
+      setAddress(user.address || '')
+      setDob(user.dob || '')
+      setBio(user.bio || '')
+    }
+  }, [user])
+
+  // Get avatar source
+  const avatarSource = useMemo(() => {
+    if (user?.profile_image) {
+      return { uri: user.profile_image }
+    }
+    return require('../../assets/images/logo_app.png')
+  }, [user?.profile_image])
+
+  // Request permissions for image picker
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Sorry, we need camera roll permissions to upload profile images!');
+      }
+    })();
+  }, []);
+
+  const handleImagePicker = () => {
+    Alert.alert(
+      'Select Profile Image',
+      'Choose how you want to select your profile image',
+      [
+        { text: 'Camera', onPress: () => openImagePicker('camera') },
+        { text: 'Photo Library', onPress: () => openImagePicker('library') },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+
+  const openImagePicker = async (source) => {
+    try {
+      setUploadingImage(true);
+      
+      let result;
+      if (source === 'camera') {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission Required', 'Camera permission is required to take photos!');
+          return;
+        }
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+      }
+
+      if (!result.canceled && result.assets[0]) {
+        const imageUri = result.assets[0].uri;
+        
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('profile_image', {
+          uri: imageUri,
+          type: 'image/jpeg',
+          name: 'profile_image.jpg',
+        });
+
+        // Update profile with new image
+        const updateResult = await updateProfile(formData);
+        
+        if (updateResult.success) {
+          Alert.alert('Success', 'Profile image updated successfully!');
+        } else {
+          Alert.alert('Error', updateResult.error || 'Failed to update profile image');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to upload image. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const onSave = async () => {
-    if (!firstName?.trim() || !lastName?.trim()) return
+    if (!firstName?.trim() || !lastName?.trim()) {
+      Alert.alert('Error', 'First name and last name are required')
+      return
+    }
+    
+    // Validate phone number if provided
+    if (phone.trim() && phone.trim().length !== 10) {
+      Alert.alert('Error', 'Phone number must be exactly 10 digits')
+      return
+    }
+    
     setSaving(true)
     try {
-      // TODO: persist to backend
-      await new Promise((r) => setTimeout(r, 600))
-      setIsEditing(false)
+      // Build profile data, only including non-empty values
+      const profileData = {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+      }
+      
+      // Only add optional fields if they have values
+      if (phone.trim()) {
+        profileData.phone = phone.trim()
+      }
+      if (address.trim()) {
+        profileData.address = address.trim()
+      }
+      if (dob.trim()) {
+        profileData.dob = dob.trim()
+      }
+      if (bio.trim()) {
+        profileData.bio = bio.trim()
+      }
+
+      console.log('📝 Sending profile data:', profileData)
+      const result = await updateProfile(profileData)
+      console.log(' Profile update result:', result)
+      
+      if (result.success) {
+        Alert.alert('Success', 'Profile updated successfully!')
+        setIsEditing(false)
+      } else {
+        Alert.alert('Error', result.error || 'Failed to update profile')
+      }
+    } catch (error) {
+      console.error('Profile update error:', error)
+      Alert.alert('Error', 'Failed to update profile')
     } finally {
       setSaving(false)
     }
@@ -46,13 +175,15 @@ const MyProfile = () => {
 
   const onCancel = () => {
     setIsEditing(false)
-    // Reset to initial values
-    setFirstName(initialUser.firstName)
-    setLastName(initialUser.lastName)
-    setPhone(initialUser.phone)
-    setAddress(initialUser.address)
-    setDob(initialUser.dob)
-    setBio(initialUser.bio)
+    // Reset to current user values
+    if (user) {
+      setFirstName(user.first_name || '')
+      setLastName(user.last_name || '')
+      setPhone(user.phone || '')
+      setAddress(user.address || '')
+      setDob(user.dob || '')
+      setBio(user.bio || '')
+    }
   }
 
   return (
@@ -64,9 +195,18 @@ const MyProfile = () => {
               <View style={styles.headerOverlay} />
             </ImageBackground>
             <View style={styles.avatarWrapper}>
-              <Image source={initialUser.avatar} style={styles.avatar} />
-              <TouchableOpacity style={styles.avatarEdit} activeOpacity={0.8}>
-                <Ionicons name="camera" size={16} color="#fff" />
+              <Image source={avatarSource} style={styles.avatar} />
+              <TouchableOpacity 
+                style={[styles.avatarEdit, uploadingImage && styles.avatarEditDisabled]} 
+                activeOpacity={0.8}
+                onPress={handleImagePicker}
+                disabled={uploadingImage}
+              >
+                {uploadingImage ? (
+                  <Ionicons name="hourglass" size={16} color="#fff" />
+                ) : (
+                  <Ionicons name="camera" size={16} color="#fff" />
+                )}
               </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.headerEdit} onPress={isEditing ? onCancel : onEdit} activeOpacity={0.8}>
@@ -223,6 +363,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  avatarEditDisabled: {
+    backgroundColor: '#ccc',
+  },
   fieldWrapper: { marginBottom: 12, paddingHorizontal: 16 },
   fieldLabel: { fontSize: 12, color: '#6B7280', marginBottom: 6, fontWeight: '600' },
   inputWrapper: {
@@ -243,5 +386,3 @@ const styles = StyleSheet.create({
 })
 
 export default MyProfile
-
-

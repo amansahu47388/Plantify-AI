@@ -3,10 +3,12 @@ import React from 'react'
 import { Tabs } from 'expo-router';
 import { Colors } from '../../assets/Color';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AuthGuard from '../../src/components/AuthGuard';
 
 const TabLayout = () => {
   return (
-    <Tabs screenOptions={{
+    <AuthGuard requireAuth={true}>
+      <Tabs screenOptions={{
       headerShown: false,
       tabBarActiveTintColor: "#86B049", 
       tabBarInactiveTintColor: "#9CA3AF",
@@ -35,6 +37,7 @@ const TabLayout = () => {
         marginBottom: 8,
       }
     }}>
+      {/* Main visible tabs */}
       <Tabs.Screen name='home' options={{
         title: "Home",
         tabBarIcon: ({ color }) => (
@@ -72,7 +75,18 @@ const TabLayout = () => {
           <Ionicons name="person-outline" size={24} color={color} />
         )
       }} />
-    </Tabs>
+      
+      {/* Hidden screens - not visible in tab bar */}
+      <Tabs.Screen name='my_profile' options={{
+        href: null, // Hide from tab bar
+        tabBarStyle: { display: 'none' }, 
+      }} />
+      <Tabs.Screen name='change_password' options={{
+        href: null, // Hide from tab bar
+        tabBarStyle: { display: 'none' }, 
+      }} />
+      </Tabs>
+    </AuthGuard>  
   )
 }
 

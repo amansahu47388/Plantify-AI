@@ -1,12 +1,37 @@
 import { useRouter } from "expo-router";
 import { Text, View, TouchableOpacity, ScrollView, Image, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../src/contexts/AuthContext";
+import { useEffect } from "react";
 
 const logo = require("../assets/images/plantify-black.png");
 const logo_landing = require("../assets/images/logo_landing.png");
 
 export default function Index() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Redirect authenticated users to home
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace('/(tabs)/home');
+    }
+  }, [isAuthenticated, isLoading]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#e8f3e8' }}>
+        <Text style={{ color: '#86B049', fontSize: 18 }}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Don't render landing page if user is authenticated
+  if (isAuthenticated) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-[#e8f3e8]">
      
@@ -45,7 +70,7 @@ export default function Index() {
                       Already have an account? 
                     </Text>
                   <TouchableOpacity  className="flex flex-row ml-1 justify-center items-center space-x-2">
-                    <Text className="text-base font-semibold  underline text-[#86B049]" onPress={()=>router.push('/home')}> 
+                    <Text className="text-base font-semibold  underline text-[#86B049]" onPress={()=>router.push('/login')}> 
                       Login
                     </Text>
                   </TouchableOpacity>

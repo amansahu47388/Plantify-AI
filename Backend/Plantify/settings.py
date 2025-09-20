@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-*2*fgimvf%1jknfr@nr696)ir)tcs*i=%3fnvg&ik7=y%qbonj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.236.101.101', '0.0.0.0']
 
 
 # Application definition
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
 ]
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # Add CORS middleware
@@ -69,7 +70,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite default port
     "http://192.168.1.100:5173",  # Vite default port
     "http://localhost:8081",  
-    "http://localhost:8082"
+    "http://10.236.101.101:19006",  # Current network IP
+    "exp://192.168.1.100:8081",  # Expo development server
+    "exp://10.236.101.101:8081",  # Current network IP
 ]
 
 CORS_ALLOW_CREDENTIALS = True

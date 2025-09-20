@@ -117,6 +117,7 @@ class PasswordResetToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"Reset token for {self.user.email}"
@@ -124,6 +125,10 @@ class PasswordResetToken(models.Model):
     def is_valid(self):
         """Check if token is valid (not expired and not used)"""
         return not self.is_used and timezone.now() < self.expires_at
+    
+    def is_expired(self):
+        """Check if token is expired"""
+        return timezone.now() >= self.expires_at
     
     @classmethod
     def generate_token(cls, user, expiry_hours=24):

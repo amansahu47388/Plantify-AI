@@ -201,3 +201,29 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         self.token_obj.save()
         
         return user
+
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(min_length=8, required=True)
+    confirm_password = serializers.CharField(min_length=8, required=True)
+    
+    def validate(self, data):
+        # Check if passwords match
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("New passwords do not match.")
+        
+        # Validate password strength
+        is_valid, errors = validate_password_strength(data['new_password'])
+        if not is_valid:
+            raise serializers.ValidationError({"new_password": errors})
+        
+        return data
+    
+    def validate_current_password(self, value):
+        # Get the user from the request context
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Current password is incorrect.")
+        return value

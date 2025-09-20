@@ -3,6 +3,7 @@ from .views import *
 from Account import views
 from .views import UserProfileView, VerifyOTPView, ResendOTPView, CheckPasswordStrengthView, PasswordResetRequestView, PasswordResetVerifyView, PasswordResetConfirmView
 from .contact import contact_us
+from .reset_password_web import reset_password_web, reset_password_api
 
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -22,5 +23,8 @@ urlpatterns = [
     path('password-reset/request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset/verify/', PasswordResetVerifyView.as_view(), name='password_reset_verify'),
     path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset-password/', reset_password_web, name='reset_password_web'),
+    path('reset-password-api/', reset_password_api, name='reset_password_api'),
     path('contact/', contact_us, name='contact'),
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
 ]

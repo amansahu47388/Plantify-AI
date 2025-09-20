@@ -1,18 +1,63 @@
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useRouter } from "expo-router";
+import { AuthService } from '../../src/services/authService';
 
 const reset_img = require("../../assets/images/login_img.jpg");
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('')
     const [isSubmitted, setIsSubmitted] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
     const router = useRouter();
 
-    const handleSendReset = () => {
-        // Simulate API call success
-        setIsSubmitted(true)
+    const handleSendReset = async () => {
+        // Validation
+        if (!email.trim()) {
+            setError("Email is required");
+            return;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+            setError("Please enter a valid email address");
+            return;
+        }
+
+        setError('');
+        setLoading(true);
+
+        try {
+            console.log('Requesting password reset for email:', email.trim());
+            const result = await AuthService.requestPasswordReset(email.trim());
+            console.log('Password reset result:', result);
+            
+            if (result.success) {
+                setIsSubmitted(true);
+                Alert.alert(
+                    'Success!',
+                    'Password reset link has been sent to your email. Please check your inbox and follow the instructions to reset your password.',
+                    [{ text: 'OK' }]
+                );
+            } else {
+                setError(result.error || 'Failed to send reset link');
+            }
+        } catch (error) {
+            if (error.message.includes('Network connection failed')) {
+                Alert.alert(
+                    'Connection Error',
+                    'Cannot connect to backend server. Please check:\n\n1. Backend server is running\n2. IP address is correct\n3. Both devices are on same network',
+                    [{ text: 'OK' }]
+                );
+            } else {
+                setError(error.message);
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -64,12 +109,26 @@ const ForgotPassword = () => {
                                     autoCapitalize="none"
                                 />
                             </View>
+
+                            {/* Error Message */}
+                            {error ? (
+                                <Text className="text-red-600 text-center mb-4">{error}</Text>
+                            ) : null}
+
                             {/* Send Reset Link Button */}
                             <TouchableOpacity
-                                className="bg-[#86B049] py-3 rounded-full mb-6 shadow"
+                                className={`py-3 rounded-full mb-6 shadow ${loading ? 'bg-gray-400' : 'bg-[#86B049]'}`}
                                 onPress={handleSendReset}
+                                disabled={loading}
                             >
-                                <Text className="text-white text-center font-semibold text-lg">Send Reset Link</Text>
+                                {loading ? (
+                                    <View className="flex-row items-center justify-center">
+                                        <ActivityIndicator color="white" size="small" />
+                                        <Text className="text-white text-center font-semibold text-lg ml-2">Sending...</Text>
+                                    </View>
+                                ) : (
+                                    <Text className="text-white text-center font-semibold text-lg">Send Reset Link</Text>
+                                )}
                             </TouchableOpacity>
                             {/* Return to Login Link */}
                             <View className="flex-row justify-center mt-2">

@@ -1,34 +1,64 @@
 import React, { useMemo } from 'react'
-import { View, Text, StyleSheet, ImageBackground, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native'
+import { View, Text, StyleSheet, ImageBackground, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
+import { useAuth } from '../../src/contexts/AuthContext'
 
 const Profile = () => {
   const router = useRouter()
+  const { user, logout, isLoading } = useAuth()
 
-  // In a real app, replace with user context/store
-  const user = useMemo(() => ({
-    fullName: 'Aisha koritum',
-    email: 'aishakoritum008@gmail.com',
-    avatar: require('../../assets/images/logo_app.png'),
+  // Fallback user data if user is not loaded yet
+  const userData = useMemo(() => ({
+    fullName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User' : 'User',
+    email: user?.email || 'user@example.com',
+    avatar: user?.profile_image ? { uri: user.profile_image } : require('../../assets/images/logo_app.png'),
     headerImage: require('../../assets/images/login_img.jpg'),
-  }), [])
+  }), [user])
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await logout();
+              if (result.success) {
+                router.replace('/');
+              } else {
+                Alert.alert('Error', result.error || 'Failed to logout');
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const onPressRow = (key) => {
     switch (key) {
       case 'my-profile':
-        router.push('/my_profile')
+        router.push('/(tabs)/my_profile')
         break
-      case 'Reset Password':
-        router.push('/reset_password')
+      case 'Change Password':
+        router.push('/(tabs)/change_password')
         break
      
       case 'help':
         router.push('/help')
         break
       case 'logout':
-        // Implement real sign-out here
-        console.log('Logging out...')
+        handleLogout()
         break
       default:
         break
@@ -39,22 +69,22 @@ const Profile = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerWrapper}>
-          <ImageBackground source={user.headerImage} resizeMode="cover" style={styles.headerBackground}>
+          <ImageBackground source={userData.headerImage} resizeMode="cover" style={styles.headerBackground}>
             <View style={styles.headerOverlay} />
           </ImageBackground>
           <View style={styles.avatarWrapper}>
-            <Image source={user.avatar} style={styles.avatar} />
+            <Image source={userData.avatar} style={styles.avatar} />
           </View>
         </View>
 
         <View style={styles.identityWrapper}>
-          <Text style={styles.nameText}>{user.fullName}</Text>
-          <Text style={styles.emailText}>{user.email}</Text>
+          <Text style={styles.nameText}>{userData.fullName}</Text>
+          <Text style={styles.emailText}>{userData.email}</Text>
         </View>
 
         <View style={styles.cardList}>
           <ActionRow icon="person-circle-outline" label="My Profile" onPress={() => onPressRow('my-profile')} />
-          <ActionRow icon="Password-outline" label="Reset Password" onPress={() => onPressRow('Reset Password')} />
+          <ActionRow icon="Password-outline" label="Change Password" onPress={() => onPressRow('Change Password')} />
           <ActionRow icon="help-circle-outline" label="Help Center" onPress={() => onPressRow('help')} />
           <ActionRow icon="log-out-outline" label="Log Out" onPress={() => onPressRow('logout')} danger />
         </View>
