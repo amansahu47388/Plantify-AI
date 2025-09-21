@@ -4,8 +4,10 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 export default function CameraScreen() {
+  const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [cameraType, setCameraType] = useState('back');
   const [photo, setPhoto] = useState(null);
@@ -32,7 +34,11 @@ export default function CameraScreen() {
     if (cameraRef.current) {
       try {
         const photoData = await cameraRef.current.takePictureAsync();
-        setPhoto(photoData.uri);
+        // Navigate to disease prediction with the captured image
+        router.push({
+          pathname: '/(tabs)/disease_prediction',
+          params: { imageUri: photoData.uri }
+        });
       } catch (error) {
         console.error("Error taking picture:", error);
       }
@@ -56,12 +62,16 @@ export default function CameraScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [1, 1],
         quality: 1,
       });
 
       if (!result.canceled) {
-        setPhoto(result.assets[0].uri);
+        // Navigate to disease prediction with the selected image
+        router.push({
+          pathname: '/(tabs)/disease_prediction',
+          params: { imageUri: result.assets[0].uri }
+        });
       }
     } catch (error) {
       console.error("Error picking image:", error);

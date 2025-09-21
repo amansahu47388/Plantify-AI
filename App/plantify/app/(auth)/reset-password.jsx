@@ -1,7 +1,8 @@
 import { View, Text, ActivityIndicator, Alert } from 'react-native'
 import React, { useEffect } from 'react'
 import { useRouter, useLocalSearchParams } from "expo-router"
-import { AuthService } from '../src/services/authService';
+import { AuthService } from '../../src/services/authService';
+
 
 const ResetPasswordHandler = () => {
     const router = useRouter();

@@ -19,12 +19,29 @@ working_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(working_dir, 'trained_model', 'resnet50_trained.h5')
 class_indices_path = os.path.join(working_dir, 'class_indices.json')
 
-# Load the pre-trained model
-model = tf.keras.models.load_model(model_path)
+# Initialize model and class_indices as None
+model = None
+class_indices = None
 
-# Load the class indices from JSON file
-with open(class_indices_path, 'r') as f:
-    class_indices = json.load(f)
+# Load the pre-trained model and class indices
+try:
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at {model_path}")
+    
+    if not os.path.exists(class_indices_path):
+        raise FileNotFoundError(f"Class indices file not found at {class_indices_path}")
+    
+    model = tf.keras.models.load_model(model_path)
+    
+    with open(class_indices_path, 'r') as f:
+        class_indices = json.load(f)
+        
+    print("Model and class indices loaded successfully")
+    
+except Exception as e:
+    print(f"Error loading model or class indices: {str(e)}")
+    model = None
+    class_indices = None
 
 def reduce_image_noise(image):
     """
@@ -70,6 +87,12 @@ def predict_image_class(model, image_path, class_indices):
 def predict_disease(request):
     if request.method == 'POST':
         try:
+            # Check if model and class_indices are loaded
+            if model is None or class_indices is None:
+                return JsonResponse({
+                    'error': 'Model or class indices not loaded. Please check server logs for details.'
+                }, status=500)
+            
             image = request.FILES.get('image')
             if not image:
                 return JsonResponse({'error': 'No image provided'}, status=400)

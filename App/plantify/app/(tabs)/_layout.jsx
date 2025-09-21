@@ -85,6 +85,10 @@ const TabLayout = () => {
         href: null, // Hide from tab bar
         tabBarStyle: { display: 'none' }, 
       }} />
+      <Tabs.Screen name='disease_prediction' options={{
+        href: null, // Hide from tab bar
+        tabBarStyle: { display: 'none' }, 
+      }} />
       </Tabs>
     </AuthGuard>  
   )
