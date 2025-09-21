@@ -15,8 +15,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// API Configuration - Update this URL to match your backend server
-const API_BASE_URL = 'http://10.18.80.254:8000';
+// API Configuration - Will be set dynamically
+import { getAPIBaseURL } from '../../src/config/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -171,7 +171,7 @@ export default function DiseasePredictionScreen() {
         name: 'disease_image.jpg',
       });
 
-      const response = await fetch(`${API_BASE_URL}/crop-disease/predict/`, {
+      const response = await fetch(`${getAPIBaseURL().replace('/account', '')}/crop-disease/predict/`, {
         method: 'POST',
         body: formData,
         headers: {

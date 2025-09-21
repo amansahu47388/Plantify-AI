@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AuthService } from '../../src/services/authService'
 import { useFocusEffect } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
+// import { clearIPCache, updateAPIConfig } from '../../src/utils/ipDetector'
 
 const categories = [
   { id: 1, name: 'Corn', icon: '🌾' },
@@ -47,7 +48,7 @@ const Home = () => {
       
       if (profileResponse.success && profileResponse.data) {
         const userData = profileResponse.data;
-      
+       
         // Set profile image if available
         if (userData.profile_image) {
           setProfileImage(userData.profile_image);
@@ -79,6 +80,17 @@ const Home = () => {
     }
   };
 
+  // const refreshNetworkConfig = async () => {
+  //   try {
+  //     console.log('🔄 Refreshing network configuration...');
+  //     await clearIPCache();
+  //     await updateAPIConfig();
+  //     console.log('✅ Network configuration refreshed');
+  //   } catch (error) {
+  //     console.error('Error refreshing network config:', error);
+  //   }
+  // };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="flex-1">
@@ -93,23 +105,25 @@ const Home = () => {
                 Find Crop Diseases
               </Text>
             </View>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/my_profile')}>
-              {profileLoading ? (
-                <View className="w-12 h-12 rounded-full bg-gray-200 items-center justify-center">
-                  <Ionicons name="refresh" size={20} color="#6B7280" />
-                </View>
-              ) : profileImage ? (
-                <Image 
-                  source={{ uri: profileImage }} 
-                  className="w-12 h-12 rounded-full"
-                  style={{ width: 48, height: 48, borderRadius: 24 }} 
-                />
-              ) : (
-                <View className="w-12 h-12 rounded-full bg-gray-200 items-center justify-center">
-                  <Ionicons name="person" size={24} color="#6B7280" />
-                </View>
-              )}
-            </TouchableOpacity>
+            <View className="flex-row items-center space-x-2">
+              <TouchableOpacity onPress={() => router.push('/(tabs)/my_profile')}>
+                {profileLoading ? (
+                  <View className="w-12 h-12 rounded-full bg-gray-200 items-center justify-center">
+                    <Ionicons name="refresh" size={20} color="#6B7280" />
+                  </View>
+                ) : profileImage ? (
+                  <Image 
+                    source={{ uri: profileImage }} 
+                    className="w-12 h-12 rounded-full"
+                    style={{ width: 48, height: 48, borderRadius: 24 }} 
+                  />
+                ) : (
+                  <View className="w-12 h-12 rounded-full bg-gray-200 items-center justify-center">
+                    <Ionicons name="person" size={24} color="#6B7280" />
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Categories */}
