@@ -10,8 +10,8 @@ export default function AuthLayout() {
         <Stack.Screen name="signup" />
         <Stack.Screen name="email_verify" />
         <Stack.Screen name="forgot_password" />
-        <Stack.Screen name="reset_password" />
-        <Stack.Screen name="my_profile" />
+        <Stack.Screen name="reset-password" />
+        {/* <Stack.Screen name="my_profile" /> */}
       </Stack>
     </AuthGuard>
   );

@@ -1,7 +1,7 @@
 
 // List of possible API URLs to try
 const POSSIBLE_URLS = [
-  'http://10.236.101.101:8000/account',       
+  'http://10.18.80.254:8000/account',         // Current IP address    
   'http://localhost:8000/account',              
   'http://127.0.0.1:8000/account',            
 ];
@@ -31,7 +31,7 @@ const findWorkingURL = async () => {
 // For now, use the most likely working URL
 // You can change this to your preferred URL
 // const API_BASE_URL = 'http://10.236.101.101:8000/account';
-const API_BASE_URL = 'http://10.248.221.101:8000/account';
+const API_BASE_URL = 'http://10.18.80.254:8000/account';
 
 // Export both the URL and the function to find working URL
 export default API_BASE_URL;
