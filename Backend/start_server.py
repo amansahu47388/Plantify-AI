@@ -11,10 +11,10 @@ def main():
     # Setup Django
     django.setup()
     
-    print("Starting PlantifyAI Backend Server...")
-    print("Server will be accessible from mobile devices on the same network")
-    print("Make sure both your computer and mobile device are on the same WiFi network!")
-    print("Press Ctrl+C to stop the server\n")
+    print("🚀 Starting PlantifyAI Backend Server...")
+    print("📱 Server will be accessible from mobile devices on the same network")
+    print("\n⚠️  Make sure both your computer and mobile device are on the same WiFi network!")
+    print("🔄 Press Ctrl+C to stop the server\n")
     
     # Start the server binding to all interfaces
     execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:8000'])

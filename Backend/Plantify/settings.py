@@ -62,6 +62,16 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",  
+#     "http://192.168.1.100:5173",  
+#     "http://localhost:8081",  
+#     "http://10.236.101.101:19006",  
+#     "exp://192.168.1.100:8081",  
+#     "exp://10.236.101.101:8081", 
+# ]
+
 CORS_ALLOW_CREDENTIALS = True
 
 LOGIN_URL = '/accounts/login/'
@@ -98,6 +108,8 @@ DATABASES = {
 }
 
 
+# Password validation
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
