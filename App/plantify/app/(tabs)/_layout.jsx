@@ -63,7 +63,7 @@ const TabLayout = () => {
             },
             shadowOpacity: 0.3,
             shadowRadius: 8,
-            elevation: 5,
+            elevation: 5
           }}>
             <Ionicons name="camera" size={24} color="white" />
           </View>
@@ -95,3 +95,4 @@ const TabLayout = () => {
 }
 
 export default TabLayout;
+

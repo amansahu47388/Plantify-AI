@@ -1,5 +1,5 @@
 // API Configuration
-import API_BASE_URL from '../config/api';
+import { getAPIBaseURL, initializeAPIConfig } from '../config/api';
 import { handleApiError, retryRequest, checkNetworkConnectivity, logError } from './errorHandler';
 
 // AsyncStorage import with error handling
@@ -28,18 +28,32 @@ try {
   };
 }
 
-// API endpoints
-export const API_ENDPOINTS = {
-  REGISTER: `${API_BASE_URL}/register/`,
-  LOGIN: `${API_BASE_URL}/login/`,
-  VERIFY_OTP: `${API_BASE_URL}/verify-otp/`,
-  RESEND_OTP: `${API_BASE_URL}/resend-otp/`,
-  PROFILE: `${API_BASE_URL}/profile/`,
-  PASSWORD_RESET_REQUEST: `${API_BASE_URL}/password-reset/request/`,
-  PASSWORD_RESET_VERIFY: `${API_BASE_URL}/password-reset/verify/`,
-  PASSWORD_RESET_CONFIRM: `${API_BASE_URL}/password-reset/confirm/`,
-  CHANGE_PASSWORD: `${API_BASE_URL}/change-password/`,
-  CHECK_PASSWORD_STRENGTH: `${API_BASE_URL}/check-password-strength/`,
+// Function to get API endpoints with current base URL
+export const getAPIEndpoints = () => {
+  const baseURL = getAPIBaseURL();
+  const cropDiseaseBaseURL = baseURL.replace('/account', '/crop-disease');
+  return {
+    REGISTER: `${baseURL}/register/`,
+    LOGIN: `${baseURL}/login/`,
+    VERIFY_OTP: `${baseURL}/verify-otp/`,
+    RESEND_OTP: `${baseURL}/resend-otp/`,
+    PROFILE: `${baseURL}/profile/`,
+    PASSWORD_RESET_REQUEST: `${baseURL}/password-reset/request/`,
+    PASSWORD_RESET_VERIFY: `${baseURL}/password-reset/verify/`,
+    PASSWORD_RESET_CONFIRM: `${baseURL}/password-reset/confirm/`,
+    CHANGE_PASSWORD: `${baseURL}/change-password/`,
+    CHECK_PASSWORD_STRENGTH: `${baseURL}/check-password-strength/`,
+    CROP_DISEASE_PREDICT: `${cropDiseaseBaseURL}/predict/`,
+  };
+};
+
+// API endpoints (will be updated dynamically)
+export let API_ENDPOINTS = getAPIEndpoints();
+
+// Function to update API endpoints when IP changes
+export const updateAPIEndpoints = () => {
+  API_ENDPOINTS = getAPIEndpoints();
+  console.log('🔄 API endpoints updated:', API_ENDPOINTS);
 };
 
 // Token management
@@ -211,7 +225,7 @@ export const refreshAccessToken = async () => {
       throw new Error('No refresh token available. Please log in again.');
     }
 
-    const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
+    const response = await fetch(`${getAPIBaseURL()}/token/refresh/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

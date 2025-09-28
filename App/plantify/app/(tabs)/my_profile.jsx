@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   headerWrapper: { width: '100%', height: 180, marginBottom: 56, position: 'relative' },
   headerBackground: { flex: 1, width: '100%', height: '100%', justifyContent: 'flex-end' },
   headerOverlay: { height: '35%', backgroundColor: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 24, borderTopRightRadius: 24 },
-  headerEdit: { position: 'absolute', top: 10, right: 12, zIndex: 2, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' },
+  headerEdit: { position: 'absolute', top: 50, right: 12, zIndex: 2, width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' },
   avatarWrapper: {
     position: 'absolute',
     bottom: -36,
