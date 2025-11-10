@@ -1,7 +1,7 @@
 
 // List of possible API URLs to try
 const POSSIBLE_URLS = [
-  'http://10.221.156.254:8000/account',         // Current IP address    
+  'http://10.139.217.101:8000/account',         // Current IP address    
   'http://localhost:8000/account',              
   'http://127.0.0.1:8000/account',
   'http://10.0.2.2:8000/account',              // Android emulator
@@ -33,7 +33,7 @@ const findWorkingURL = async () => {
 };
 
 // Initialize with the most likely working URL
-let API_BASE_URL = 'http://10.221.156.254:8000/account';
+let API_BASE_URL = 'http://10.139.217.101:8000/account';
 
 // Function to initialize API configuration
 export const initializeAPIConfig = async () => {
